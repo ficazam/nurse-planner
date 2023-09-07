@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import Input from "../../../components/Input";
 import SelectInput from "../../../components/SelectInput";
-import { users } from "../../../../../public/staticData";
 import Button, { CancelButton } from "../../../components/Button";
 import { redirect, useParams, useRouter } from "next/navigation";
 import getOnePatient from "../../../../../lib/getOnePatient";
