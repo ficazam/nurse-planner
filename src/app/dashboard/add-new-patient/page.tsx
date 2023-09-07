@@ -3,11 +3,11 @@ import { useState, useEffect } from "react";
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import Input from "../../components/Input";
 import SelectInput from "../../components/SelectInput";
-import { users } from "../../../../public/staticData";
 import Button, { CancelButton } from "../../components/Button";
 import { redirect, useRouter } from "next/navigation";
 import addNewPatient from "../../../../lib/addNewPatient";
 import useUser from "@/app/hooks/useUser";
+import getAllUsers from "../../../../lib/getAllUsers";
 
 const NewPatient = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -15,7 +15,7 @@ const NewPatient = () => {
 	const [nurses, setNurses] = useState<string[]>([]);
 
 	const { getUserFromStorage } = useUser();
-	const user = getUserFromStorage()
+	const user = getUserFromStorage();
 	const router = useRouter();
 
 	const newPatientForm = useForm({
@@ -34,30 +34,40 @@ const NewPatient = () => {
 		reValidateMode: "onBlur",
 	});
 
-	useEffect(() => {
-		const surgeons: User[] = users.filter(
+	const populateSurgeons = async () => {
+		const users = await getAllUsers();
+		const surgeons: User[] | undefined = users?.filter(
 			(user: User) => user.userType === "Cirujano",
 		);
-		const nurses: User[] = users.filter(
-			(user: User) =>
-				user.userType === "Enfermero",
+
+		const surgeonOptions = surgeons?.map((surgeon: User) => surgeon.username);
+		surgeonOptions && setSurgeons(surgeonOptions);
+	};
+
+	const populateNurses = async () => {
+		const users = await getAllUsers();
+		const nurses: User[] | undefined = users?.filter(
+			(user: User) => user.userType === "Enfermero",
 		);
 
-		const surgeonOptions = surgeons.map((surgeon: User) => surgeon.username);
-		const nurseOptions = nurses.map((nurse: User) => nurse.username);
+		const nurseOptions = nurses?.map((nurse: User) => nurse.username);
 
-		setSurgeons(surgeonOptions);
-		setNurses(nurseOptions);
+		nurseOptions && setNurses(nurseOptions);
+	};
+
+	useEffect(() => {
+		populateSurgeons()
+		populateNurses()
 	}, []);
 
 	useEffect(() => {
-		if (user.username === '') {
+		if (user.username === "") {
 			redirect("/login");
 		}
 	}, [user]);
 
 	const submitNewPatient = async (data: FieldValues) => {
-		setIsLoading(true)
+		setIsLoading(true);
 
 		const newPatient = {
 			patientName: data.patientName,
@@ -71,11 +81,11 @@ const NewPatient = () => {
 			nurse: data.nurse,
 		};
 
-		await addNewPatient(newPatient as Patient)
+		await addNewPatient(newPatient as Patient);
 
-		newPatientForm.reset()
-		router.push('/dashboard/patients')
-	};	
+		newPatientForm.reset();
+		router.push("/dashboard/patients");
+	};
 
 	return (
 		<FormProvider {...newPatientForm}>
@@ -162,7 +172,7 @@ const NewPatient = () => {
 										newPatientForm.clearErrors("surgeon"),
 									disabled: isLoading,
 								}}
-								defaultValue=''
+								defaultValue=""
 								label="Cirujano: "
 								labelClassName="text-sm font-semibold mb-2"
 								options={surgeons}
@@ -183,9 +193,9 @@ const NewPatient = () => {
 											newPatientForm.clearErrors("nurse"),
 										disabled: isLoading,
 									}}
-									defaultValue=''
+									defaultValue=""
 									label="Enfermera: "
-									placeholder='Asigne una enfermera: '
+									placeholder="Asigne una enfermera: "
 									labelClassName="text-sm font-semibold mb-2"
 									options={nurses}
 									error={

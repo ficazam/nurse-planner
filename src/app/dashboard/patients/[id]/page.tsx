@@ -8,6 +8,8 @@ import Button, { CancelButton } from "../../../components/Button";
 import { redirect, useParams, useRouter } from "next/navigation";
 import getOnePatient from "../../../../../lib/getOnePatient";
 import useUser from "@/app/hooks/useUser";
+import getAllUsers from "../../../../../lib/getAllUsers";
+import addNewPatient from "../../../../../lib/addNewPatient";
 
 const EditPatient = () => {
 	const [patient, setPatient] = useState<Patient | undefined>(undefined);
@@ -46,31 +48,56 @@ const EditPatient = () => {
 		setPatient(pnt);
 	};
 
-	useEffect(() => {
-		if (user.username === "") {
-			redirect("/login");
-		}
-		setPatientHandler();
-
-		const surgeons: User[] = users.filter(
+	const populateSurgeons = async () => {
+		const users = await getAllUsers();
+		const surgeons: User[] | undefined = users?.filter(
 			(user: User) => user.userType === "Cirujano",
 		);
-		const nurses: User[] = users.filter(
+
+		const surgeonOptions = surgeons?.map((surgeon: User) => surgeon.username);
+		surgeonOptions && setSurgeons(surgeonOptions);
+	};
+
+	const populateNurses = async () => {
+		const users = await getAllUsers();
+		const nurses: User[] | undefined = users?.filter(
 			(user: User) => user.userType === "Enfermero",
 		);
 
-		const surgeonOptions = surgeons.map((surgeon: User) => surgeon.username);
-		const nurseOptions = nurses.map((nurse: User) => nurse.username);
+		const nurseOptions = nurses?.map((nurse: User) => nurse.username);
 
-		setSurgeons(surgeonOptions);
-		setNurses(nurseOptions);
+		nurseOptions && setNurses(nurseOptions);
+	};
+
+	useEffect(() => {
+		populateSurgeons()
+		populateNurses()
 	}, []);
 
-	const submitNewPatient = (data: FieldValues) => console.log(data);
+	const submitEditPatient = async(data: FieldValues) => {
+		setIsLoading(true);
+
+		const newPatient = {
+			patientName: data.patientName,
+			surgery: data.surgery,
+			surgeryDate: data.surgeryDate,
+			firstVisit: data.firstVisit,
+			phoneNumber: data.phoneNumber,
+			surgeon: data.surgeon,
+			address: data.address,
+			notes: data.notes,
+			nurse: data.nurse,
+		};
+
+		await addNewPatient(newPatient as Patient);
+
+		editPatientForm.reset();
+		router.push("/dashboard/patients");
+	}
 
 	return (
 		<FormProvider {...editPatientForm}>
-			<form onSubmit={editPatientForm.handleSubmit(submitNewPatient)}>
+			<form onSubmit={editPatientForm.handleSubmit(submitEditPatient)}>
 				<h1>{patient?.patientName}: </h1>
 				<div className="my-1">
 					<div className="relative flex flex-col my-8 md:px-0">
