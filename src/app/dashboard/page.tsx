@@ -4,16 +4,16 @@ import { redirect, useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
 import Card from "../components/Card";
 import { patientFilterHome, today } from "../core/helpters";
-import getAllPatients from "../../../lib/getAllPatients";
+import getAllPatients from "@/app/api/getAllPatients";
 import Button from "../components/Button";
-import useUser from "../hooks/useUser";
-import signOutUser from "../../../lib/signOutUser";
+import useUser from "../hooks/useGetUserFromStorage";
+import signOutUser from "@/app/api/signOutUser";
 
 export default function Dashboard() {
 	const [patientsList, setPatientsList] = useState<Patient[]>([]);
 	const router = useRouter();
-	const { getUserFromStorage } = useUser();
-	const user: Partial<User> = getUserFromStorage()
+	const { useGetUserFromStorage } = useUser();
+	const user: User | undefined = useGetUserFromStorage();
 
 	const setPatients = async () => {
 		const patientsData: Promise<Patient[] | undefined> = getAllPatients();
@@ -25,18 +25,18 @@ export default function Dashboard() {
 	};
 
 	useEffect(() => {
-		if (user.username === '') {
+		if (user && user.username === "") {
 			redirect("/login");
 		}
 
 		setPatients();
-	}, []);
+	}, [user]);
 
 	return (
 		<main className="flex min-h-screen flex-col items-center justify-between">
 			<Navbar />
 			<div className="h-full w-full py-20 px-10">
-				<h1 className="text-2xl">{user.username}</h1>
+				<h1 className="text-2xl">{user?.username}</h1>
 				<h1>Hoy, {today}</h1>
 
 				<>

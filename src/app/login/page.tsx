@@ -7,9 +7,9 @@ import { emailRegex, validatePassword } from "../core/validators";
 import { redirect, useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Button, { CancelButton } from "../components/Button";
-import getUser from "../../../lib/getUser";
+import getUser from "@/app/api/getUser";
 import { DocumentData } from "firebase/firestore";
-import useUser from "../hooks/useUser";
+import useUser from "../hooks/useGetUserFromStorage";
 
 const Login = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -22,16 +22,18 @@ const Login = () => {
 		reValidateMode: "onBlur",
 	});
 
-	const { getUserFromStorage, setUserToStorage } = useUser();
+	const { useGetUserFromStorage, setUserToStorage } = useUser();
+	const user: User | undefined = useGetUserFromStorage();
 	const router = useRouter();
 
 	useEffect(() => {
-		if (getUserFromStorage().username) {
+		if (user && user.username !== "") {
 			redirect("/dashboard");
 		}
-	}, [getUserFromStorage]);
+	}, [user]);
 
 	const loginHandler = async (data: FieldValues) => {
+		setIsLoading(true);
 		if (loginForm.formState.isValid) {
 			signIn("credentials", {
 				email: data.email,
@@ -39,9 +41,10 @@ const Login = () => {
 				redirect: true,
 				callbackUrl: "/dashboard",
 			}).then(() =>
-				getUser(data.email).then((user: DocumentData | undefined) =>
-					setUserToStorage(user as User),
-				),
+				getUser(data.email).then((user: DocumentData | undefined) => {
+					console.log(user);
+					setUserToStorage(user as User);
+				}),
 			);
 		}
 	};

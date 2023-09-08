@@ -5,10 +5,10 @@ import Input from "../../../components/Input";
 import SelectInput from "../../../components/SelectInput";
 import Button, { CancelButton } from "../../../components/Button";
 import { redirect, useParams, useRouter } from "next/navigation";
-import getOnePatient from "../../../../../lib/getOnePatient";
-import useUser from "@/app/hooks/useUser";
-import getAllUsers from "../../../../../lib/getAllUsers";
-import addNewPatient from "../../../../../lib/addNewPatient";
+import useUser from "@/app/hooks/useGetUserFromStorage";
+import getAllUsers from "@/app/api/getAllUsers";
+import getOnePatient from "@/app/api/getOnePatient";
+import addNewPatient from "@/app/api/addNewPatient";
 
 const EditPatient = () => {
 	const [patient, setPatient] = useState<Patient | undefined>(undefined);
@@ -18,8 +18,8 @@ const EditPatient = () => {
 
 	const router = useRouter();
 	const params = useParams();
-	const { getUserFromStorage } = useUser();
-	const user = getUserFromStorage();
+	const { useGetUserFromStorage } = useUser();
+	const user: User | undefined = useGetUserFromStorage();
 
 	const editPatientForm = useForm({
 		defaultValues: {
@@ -71,7 +71,14 @@ const EditPatient = () => {
 	useEffect(() => {
 		populateSurgeons()
 		populateNurses()
+		setPatientHandler()
 	}, []);
+
+	useEffect(() => {
+		if (user && user.username === "") {
+			redirect("/login");
+		}
+	}, [user]);
 
 	const submitEditPatient = async(data: FieldValues) => {
 		setIsLoading(true);
@@ -202,6 +209,7 @@ const EditPatient = () => {
 											editPatientForm.clearErrors("nurse"),
 										disabled: isLoading,
 									}}
+									placeholder="Asigne una enfermera: "
 									label="Enfermera: "
 									labelClassName="text-sm font-semibold mb-2"
 									options={nurses}
@@ -332,7 +340,7 @@ const EditPatient = () => {
 							</Button>
 							<CancelButton
 								type="button"
-								onClick={() => router.push("/patients")}
+								onClick={() => router.push("/dashboard/patients")}
 							>
 								Cancelar
 							</CancelButton>

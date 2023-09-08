@@ -1,17 +1,22 @@
 "use client";
-import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
+import useUser from "./hooks/useGetUserFromStorage";
+import { useEffect } from "react";
 
 const Home = () => {
-    const session = useSession({
-        required: true,
-        onUnauthenticated() {
-            redirect('/login')
-        }
-    })
+	const { useGetUserFromStorage } = useUser();
+	const user: User | undefined = useGetUserFromStorage();
+
+	useEffect(() => {
+		if (user && user.username === "") {
+			redirect("/login");
+		} else {
+			redirect("/dashboard");
+		}
+	}, [user]);
 
 	return <div />;
 };
 
-Home.requireAuth = true
+Home.requireAuth = true;
 export default Home;

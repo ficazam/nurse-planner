@@ -5,25 +5,26 @@ import Input from "../../components/Input";
 import SelectInput from "../../components/SelectInput";
 import Button, { CancelButton } from "../../components/Button";
 import { redirect, useRouter } from "next/navigation";
-import addNewPatient from "../../../../lib/addNewPatient";
-import useUser from "@/app/hooks/useUser";
-import getAllUsers from "../../../../lib/getAllUsers";
+import addNewPatient from "../../api/addNewPatient";
+import useUser from "@/app/hooks/useGetUserFromStorage";
+import getAllUsers from "@/app/api/getAllUsers";
+import { today, tomorrow } from "@/app/core/helpters";
 
 const NewPatient = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [surgeons, setSurgeons] = useState<string[]>([]);
 	const [nurses, setNurses] = useState<string[]>([]);
 
-	const { getUserFromStorage } = useUser();
-	const user = getUserFromStorage();
+	const { useGetUserFromStorage } = useUser();
+	const user: User | undefined = useGetUserFromStorage();
 	const router = useRouter();
 
 	const newPatientForm = useForm({
 		defaultValues: {
 			patientName: "",
 			surgery: "",
-			surgeryDate: "",
-			firstVisit: "",
+			surgeryDate: today,
+			firstVisit: tomorrow,
 			phoneNumber: "",
 			surgeon: "",
 			address: "",
@@ -61,7 +62,7 @@ const NewPatient = () => {
 	}, []);
 
 	useEffect(() => {
-		if (user.username === "") {
+		if (user && user.username === "") {
 			redirect("/login");
 		}
 	}, [user]);
@@ -325,9 +326,6 @@ const NewPatient = () => {
 							<Input
 								name="notes"
 								formConfig={{
-									validate: (input: string) =>
-										input.trim() !== "" ||
-										"Favor llenar las notas correctamente",
 									onChange: () =>
 										newPatientForm.formState.errors.notes &&
 										newPatientForm.clearErrors("notes"),
@@ -358,7 +356,7 @@ const NewPatient = () => {
 							</Button>
 							<CancelButton
 								type="button"
-								onClick={() => router.push("/patients")}
+								onClick={() => router.push("/dashboard/patients")}
 							>
 								Cancelar
 							</CancelButton>

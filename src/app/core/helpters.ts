@@ -3,7 +3,11 @@ export const dateFormatter = (date: Date | undefined) => {
 	return "invalid date";
 };
 
-export const today: string = dateFormatter(new Date());
+const unformattedToday = new Date()
+const unformattedTomorrow = new Date()
+unformattedTomorrow.setDate(unformattedTomorrow.getDate() + 1)
+export const today: string = dateFormatter(unformattedToday);
+export const tomorrow: string = dateFormatter(unformattedTomorrow);
 
 export const patientFilterHome = (patients: Patient[], user: User) => {
 	return patients

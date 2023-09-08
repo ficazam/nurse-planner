@@ -4,28 +4,32 @@ import Card from "../../components/Card";
 import { redirect } from "next/navigation";
 import { patientFilterAll } from "../../core/helpters";
 import Link from "next/link";
-import getAllPatients from "../../../../lib/getAllPatients";
-import useUser from "@/app/hooks/useUser";
+import getAllPatients from "@/app/api/getAllPatients";
+import useUser from "@/app/hooks/useGetUserFromStorage";
 
 const Patients = () => {
 	const [patientsList, setPatientsList] = useState<Patient[]>([]);
-	const { getUserFromStorage } = useUser();
-	const user = getUserFromStorage()
+	const { useGetUserFromStorage } = useUser();
+	const user: User | undefined = useGetUserFromStorage();
 
 	const setPatients = async () => {
-		if (user) {
-			const patientsData: Promise<Patient[] | undefined> = getAllPatients();
-			const patients = await patientsData;
+		const patientsData: Promise<Patient[] | undefined> = getAllPatients();
+		const patients = await patientsData;
 
-			patients && setPatientsList(patientFilterAll(patients, user as User));
-		} else {
-			redirect("/login");
-		}
+		patients &&
+			user &&
+			setPatientsList(patientFilterAll(patients, user as User));
 	};
 
 	useEffect(() => {
 		setPatients();
-	}, []);
+	}, [user]);
+
+	useEffect(() => {
+		if (user && user.username === "") {
+			redirect("/login");
+		}
+	}, [user]);
 
 	return (
 		<>

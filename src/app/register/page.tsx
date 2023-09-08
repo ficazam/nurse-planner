@@ -3,14 +3,14 @@ import { useState, useEffect } from "react";
 import Card from "../components/Card";
 import { FieldValues, useForm, FormProvider } from "react-hook-form";
 import Input from "../components/Input";
+import SelectInput from "../components/SelectInput";
 import { redirect, useRouter } from "next/navigation";
 import Button, { CancelButton } from "../components/Button";
-import getUser from "../../../lib/getUser";
-import SelectInput from "../components/SelectInput";
-import signUpUser from "../../../lib/signupUser";
-import addNewUser from "../../../lib/addUser";
-import getAllUsers from "../../../lib/getAllUsers";
-import useUser from "../hooks/useUser";
+import getUser from "@/app/api/getUser";
+import signUpUser from "@/app/api/signupUser";
+import addNewUser from "@/app/api/addUser";
+import getAllUsers from "@/app/api/getAllUsers";
+import useUser from "../hooks/useGetUserFromStorage";
 
 const Register = () => {
 	const [surgeons, setSurgeons] = useState<string[]>([]);
@@ -28,16 +28,17 @@ const Register = () => {
 	});
 
 	const router = useRouter();
-	const { getUserFromStorage, setUserToStorage } = useUser();
-	const user = getUserFromStorage()
+	const { useGetUserFromStorage, setUserToStorage } = useUser();
+	const user: User | undefined = useGetUserFromStorage();
 
 	useEffect(() => {
-		if (user) {
+		if (user && user.username !== '') {
 			redirect("/dashboard");
 		}
 	}, [user]);
 
 	const registerHandler = async (data: FieldValues) => {
+		setIsLoading(true);
 		const userData: User = {
 			uid: data.email,
 			username: data.username,
@@ -47,14 +48,14 @@ const Register = () => {
 		};
 
 		if (registerForm.formState.isValid) {
-            setIsLoading(true)
+			setIsLoading(true);
 			await signUpUser(data.email, data.password);
 			await addNewUser(userData);
 
 			const user = await getUser(data.email);
 
 			setUserToStorage(user as User);
-            router.push('/')
+			router.push("/dashboard");
 		}
 	};
 
@@ -69,7 +70,7 @@ const Register = () => {
 
 	useEffect(() => {
 		populateSelectOptions();
-	}, [registerForm.watch("userType")]);
+	}, []);
 
 	return (
 		<Card>
