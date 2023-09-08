@@ -1,19 +1,20 @@
 "use client";
 import { useEffect, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
 import Card from "../components/Card";
 import { patientFilterHome, today } from "../core/helpters";
 import getAllPatients from "@/app/api/getAllPatients";
 import Button from "../components/Button";
-import useUser from "../hooks/useGetUserFromStorage";
 import signOutUser from "@/app/api/signOutUser";
+import useUserStore from "../api/store/store";
 
 export default function Dashboard() {
 	const [patientsList, setPatientsList] = useState<Patient[]>([]);
 	const router = useRouter();
-	const { useGetUserFromStorage } = useUser();
-	const user: User | undefined = useGetUserFromStorage();
+
+	const user: User | undefined = useUserStore((state) => state.user);
+	const removeUser = useUserStore((state) => state.removeUser);
 
 	const setPatients = async () => {
 		const patientsData: Promise<Patient[] | undefined> = getAllPatients();
@@ -24,13 +25,15 @@ export default function Dashboard() {
 			setPatientsList(patientFilterHome(patients, user as User));
 	};
 
-	useEffect(() => {
-		if (user && user.username === "") {
-			redirect("/login");
-		}
+	const handleSignOut = () => {
+		signOutUser();
+		removeUser();
+		return router.push("/");
+	};
 
+	useEffect(() => {
 		setPatients();
-	}, [user]);
+	}, []);
 
 	return (
 		<main className="flex min-h-screen flex-col items-center justify-between">
@@ -54,14 +57,7 @@ export default function Dashboard() {
 						</Card>
 					))}
 				</>
-				<Button
-					type="button"
-					onClick={() => {
-						signOutUser();
-						router.push("/login");
-					}}
-					className="mt-10"
-				>
+				<Button type="button" onClick={handleSignOut} className="mt-10">
 					Cerrar Sesion
 				</Button>
 			</div>

@@ -5,12 +5,11 @@ import { redirect } from "next/navigation";
 import { patientFilterAll } from "../../core/helpters";
 import Link from "next/link";
 import getAllPatients from "@/app/api/getAllPatients";
-import useUser from "@/app/hooks/useGetUserFromStorage";
+import useUserStore from "@/app/api/store/store";
 
 const Patients = () => {
 	const [patientsList, setPatientsList] = useState<Patient[]>([]);
-	const { useGetUserFromStorage } = useUser();
-	const user: User | undefined = useGetUserFromStorage();
+	const user: User | undefined = useUserStore((state) => state.user);
 
 	const setPatients = async () => {
 		const patientsData: Promise<Patient[] | undefined> = getAllPatients();
@@ -23,12 +22,6 @@ const Patients = () => {
 
 	useEffect(() => {
 		setPatients();
-	}, [user]);
-
-	useEffect(() => {
-		if (user && user.username === "") {
-			redirect("/login");
-		}
 	}, [user]);
 
 	return (

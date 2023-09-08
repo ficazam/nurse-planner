@@ -9,10 +9,14 @@ import { signIn } from "next-auth/react";
 import Button, { CancelButton } from "../components/Button";
 import getUser from "@/app/api/getUser";
 import { DocumentData } from "firebase/firestore";
-import useUser from "../hooks/useGetUserFromStorage";
+import useUserStore from "../api/store/store";
 
 const Login = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [authError, setAuthError] = useState<string | null | undefined>(
+		undefined,
+	);
+
 	const loginForm = useForm({
 		defaultValues: {
 			email: "",
@@ -22,30 +26,33 @@ const Login = () => {
 		reValidateMode: "onBlur",
 	});
 
-	const { useGetUserFromStorage, setUserToStorage } = useUser();
-	const user: User | undefined = useGetUserFromStorage();
+	const user: User | undefined = useUserStore((state) => state.user);
+	const setUser = useUserStore((state) => state.setUser);
 	const router = useRouter();
 
 	useEffect(() => {
-		if (user && user.username !== "") {
-			redirect("/dashboard");
-		}
+		if (user) redirect("/dashboard");
 	}, [user]);
 
 	const loginHandler = async (data: FieldValues) => {
-		setIsLoading(true);
 		if (loginForm.formState.isValid) {
-			signIn("credentials", {
+			setIsLoading(true);
+
+			const login = await signIn("credentials", {
 				email: data.email,
 				password: data.password,
-				redirect: true,
-				callbackUrl: "/dashboard",
-			}).then(() =>
-				getUser(data.email).then((user: DocumentData | undefined) => {
-					console.log(user);
-					setUserToStorage(user as User);
-				}),
-			);
+				redirect: false
+			});
+
+			if (login?.ok) {
+				const userData = await getUser(data.email);
+				setUser(userData as User);
+				router.push('/')
+			} else {
+				setAuthError(login?.error);
+			}
+
+			setIsLoading(false);
 		}
 	};
 
@@ -121,6 +128,9 @@ const Login = () => {
 								Registro
 							</CancelButton>
 						</div>
+					</div>
+					<div className="min-h-20 text-red-500">
+						<p>{authError && authError}</p>
 					</div>
 				</form>
 			</FormProvider>

@@ -10,7 +10,7 @@ import getUser from "@/app/api/getUser";
 import signUpUser from "@/app/api/signupUser";
 import addNewUser from "@/app/api/addUser";
 import getAllUsers from "@/app/api/getAllUsers";
-import useUser from "../hooks/useGetUserFromStorage";
+import useUserStore from "../api/store/store";
 
 const Register = () => {
 	const [surgeons, setSurgeons] = useState<string[]>([]);
@@ -27,14 +27,12 @@ const Register = () => {
 		reValidateMode: "onBlur",
 	});
 
+	const user: User | undefined = useUserStore((state) => state.user)
+	const setUser = useUserStore((state) => state.setUser)
 	const router = useRouter();
-	const { useGetUserFromStorage, setUserToStorage } = useUser();
-	const user: User | undefined = useGetUserFromStorage();
 
 	useEffect(() => {
-		if (user && user.username !== '') {
-			redirect("/dashboard");
-		}
+		if (user) redirect("/dashboard");
 	}, [user]);
 
 	const registerHandler = async (data: FieldValues) => {
@@ -49,13 +47,14 @@ const Register = () => {
 
 		if (registerForm.formState.isValid) {
 			setIsLoading(true);
-			await signUpUser(data.email, data.password);
+			const signup = await signUpUser(data.email, data.password);
 			await addNewUser(userData);
 
 			const user = await getUser(data.email);
 
-			setUserToStorage(user as User);
-			router.push("/dashboard");
+			setUser(user as User);
+			router.push("/");
+			setIsLoading(false)
 		}
 	};
 

@@ -4,11 +4,11 @@ import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import Input from "../../../components/Input";
 import SelectInput from "../../../components/SelectInput";
 import Button, { CancelButton } from "../../../components/Button";
-import { redirect, useParams, useRouter } from "next/navigation";
-import useUser from "@/app/hooks/useGetUserFromStorage";
+import { useParams, useRouter } from "next/navigation";
 import getAllUsers from "@/app/api/getAllUsers";
 import getOnePatient from "@/app/api/getOnePatient";
 import addNewPatient from "@/app/api/addNewPatient";
+import useUserStore from "@/app/api/store/store";
 
 const EditPatient = () => {
 	const [patient, setPatient] = useState<Patient | undefined>(undefined);
@@ -18,8 +18,7 @@ const EditPatient = () => {
 
 	const router = useRouter();
 	const params = useParams();
-	const { useGetUserFromStorage } = useUser();
-	const user: User | undefined = useGetUserFromStorage();
+	const user: User | undefined = useUserStore((state) => state.user);
 
 	const editPatientForm = useForm({
 		defaultValues: {
@@ -69,18 +68,12 @@ const EditPatient = () => {
 	};
 
 	useEffect(() => {
-		populateSurgeons()
-		populateNurses()
-		setPatientHandler()
+		populateSurgeons();
+		populateNurses();
+		setPatientHandler();
 	}, []);
 
-	useEffect(() => {
-		if (user && user.username === "") {
-			redirect("/login");
-		}
-	}, [user]);
-
-	const submitEditPatient = async(data: FieldValues) => {
+	const submitEditPatient = async (data: FieldValues) => {
 		setIsLoading(true);
 
 		const newPatient = {
@@ -99,7 +92,7 @@ const EditPatient = () => {
 
 		editPatientForm.reset();
 		router.push("/dashboard/patients");
-	}
+	};
 
 	return (
 		<FormProvider {...editPatientForm}>

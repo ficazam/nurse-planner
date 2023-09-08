@@ -1,18 +1,14 @@
 "use client";
 import { redirect } from "next/navigation";
-import useUser from "./hooks/useGetUserFromStorage";
 import { useEffect } from "react";
+import useUserStore from "./api/store/store";
 
 const Home = () => {
-	const { useGetUserFromStorage } = useUser();
-	const user: User | undefined = useGetUserFromStorage();
+	const user: User | undefined = useUserStore((state) => state.user);
 
 	useEffect(() => {
-		if (user && user.username === "") {
-			redirect("/login");
-		} else {
-			redirect("/dashboard");
-		}
+		if(!user) redirect('/login')
+		if(user) redirect('/dashboard')
 	}, [user]);
 
 	return <div />;

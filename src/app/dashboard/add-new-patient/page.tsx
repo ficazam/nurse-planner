@@ -6,17 +6,16 @@ import SelectInput from "../../components/SelectInput";
 import Button, { CancelButton } from "../../components/Button";
 import { redirect, useRouter } from "next/navigation";
 import addNewPatient from "../../api/addNewPatient";
-import useUser from "@/app/hooks/useGetUserFromStorage";
 import getAllUsers from "@/app/api/getAllUsers";
 import { today, tomorrow } from "@/app/core/helpters";
+import useUserStore from "@/app/api/store/store";
 
 const NewPatient = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [surgeons, setSurgeons] = useState<string[]>([]);
 	const [nurses, setNurses] = useState<string[]>([]);
 
-	const { useGetUserFromStorage } = useUser();
-	const user: User | undefined = useGetUserFromStorage();
+	const user: User | undefined = useUserStore((state) => state.user);
 	const router = useRouter();
 
 	const newPatientForm = useForm({
@@ -57,8 +56,8 @@ const NewPatient = () => {
 	};
 
 	useEffect(() => {
-		populateSurgeons()
-		populateNurses()
+		populateSurgeons();
+		populateNurses();
 	}, []);
 
 	useEffect(() => {
