@@ -89,7 +89,7 @@ const NewPatient = () => {
 
 	return (
 		<FormProvider {...newPatientForm}>
-			<form onSubmit={newPatientForm.handleSubmit(submitNewPatient)}>
+			<form onSubmit={newPatientForm.handleSubmit(submitNewPatient)} className="h-screen">
 				<h1>Nuevo Paciente: </h1>
 				<div className="my-1">
 					<div className="relative flex flex-col my-8 md:px-0">

@@ -96,7 +96,7 @@ const EditPatient = () => {
 
 	return (
 		<FormProvider {...editPatientForm}>
-			<form onSubmit={editPatientForm.handleSubmit(submitEditPatient)}>
+			<form onSubmit={editPatientForm.handleSubmit(submitEditPatient)} className="h-screen">
 				<h1>{patient?.patientName}: </h1>
 				<div className="my-1">
 					<div className="relative flex flex-col my-8 md:px-0">
