@@ -8,7 +8,6 @@ import { redirect, useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Button, { CancelButton } from "../components/Button";
 import getUser from "@/app/api/getUser";
-import { DocumentData } from "firebase/firestore";
 import useUserStore from "../api/store/store";
 
 const Login = () => {
@@ -44,10 +43,11 @@ const Login = () => {
 				redirect: false
 			});
 
+			console.log(login)
+
 			if (login?.ok) {
 				const userData = await getUser(data.email);
 				setUser(userData as User);
-				router.push('/')
 			} else {
 				setAuthError(login?.error);
 			}

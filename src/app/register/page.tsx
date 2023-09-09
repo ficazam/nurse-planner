@@ -53,7 +53,6 @@ const Register = () => {
 			const user = await getUser(data.email);
 
 			setUser(user as User);
-			router.push("/");
 			setIsLoading(false)
 		}
 	};
