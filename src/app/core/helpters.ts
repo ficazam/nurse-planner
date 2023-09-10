@@ -12,7 +12,7 @@ export const tomorrow: string = dateFormatter(unformattedTomorrow);
 export const patientFilterHome = (patients: Patient[], user: User) => {
 	return patients
 		.filter((patient: Patient) => {
-			if (user.userType === "Administrador") {
+			if (user.userType === "Asistente") {
 				return patient.surgeon === user.surgeon;
 			}
 			if (user.userType === "Cirujano") {
@@ -31,7 +31,7 @@ export const patientFilterAll = (patients: Patient[], user: User) => {
 		if (user?.superadmin) {
 			return true;
 		}
-		if (user?.userType === "Administrador") {
+		if (user?.userType === "Asistente") {
 			return patient.surgeon === user.surgeon;
 		}
 		if (user?.userType === "Cirujano") {

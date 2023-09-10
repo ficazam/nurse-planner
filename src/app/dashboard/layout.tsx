@@ -9,6 +9,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
 	useEffect(() => {
 		if (!user) redirect("/login");
+		if (!user.isVerified) redirect("/login?q=verify");
 	}, [user]);
 	return (
 		<div className="h-full w-full flex flex-col justify-center items-center pt-20">

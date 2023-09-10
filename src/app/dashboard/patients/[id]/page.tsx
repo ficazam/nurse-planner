@@ -191,19 +191,13 @@ const EditPatient = () => {
 								<SelectInput
 									name="nurse"
 									formConfig={{
-										minLength: {
-											value: 3,
-											message:
-												"El nombre de la enfermera debe ser de mas de 3 caracteres.",
-										},
-
 										onChange: () =>
 											editPatientForm.formState.errors.nurse &&
 											editPatientForm.clearErrors("nurse"),
 										disabled: isLoading,
 									}}
-									placeholder="Asigne una enfermera: "
-									label="Enfermera: "
+									placeholder="Asigne un enfermero: "
+									label="Enfermero: "
 									labelClassName="text-sm font-semibold mb-2"
 									options={nurses}
 									error={

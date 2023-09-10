@@ -8,6 +8,7 @@ const Home = () => {
 
 	useEffect(() => {
 		if(!user) redirect('/login')
+		if(!user.isVerified) redirect('/login?q=verify')
 		if(user) redirect('/dashboard')
 	}, [user]);
 

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Card from "../components/Card";
 import { FieldValues, useForm, FormProvider } from "react-hook-form";
 import Input from "../components/Input";
-import { emailRegex, validatePassword } from "../core/validators";
+//import { emailRegex, validatePassword } from "../core/validators";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Button, { CancelButton } from "../components/Button";

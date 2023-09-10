@@ -6,7 +6,6 @@ import Input from "../components/Input";
 import SelectInput from "../components/SelectInput";
 import { redirect, useRouter } from "next/navigation";
 import Button, { CancelButton } from "../components/Button";
-import getUser from "@/app/api/getUser";
 import signUpUser from "@/app/api/signupUser";
 import addNewUser from "@/app/api/addUser";
 import getAllUsers from "@/app/api/getAllUsers";
@@ -165,7 +164,7 @@ const Register = () => {
 								label="Tipo de usuario: "
 								placeholder="Asigne su tipo de usuario"
 								labelClassName="text-sm font-semibold"
-								options={["Administrador", "Cirujano", "Enfermero"]}
+								options={["Asistente", "Cirujano", "Enfermero"]}
 								error={
 									registerForm.getFieldState("userType").isTouched &&
 									registerForm.formState.errors.userType
@@ -175,7 +174,7 @@ const Register = () => {
 							/>
 						</div>
 
-						{registerForm.watch("userType") === "Administrador" && (
+						{registerForm.watch("userType") === "Asistente" && (
 							<div className="relative flex flex-col my-8 md:px-0">
 								<SelectInput
 									name="surgeon"

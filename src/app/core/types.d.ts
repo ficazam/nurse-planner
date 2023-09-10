@@ -2,7 +2,7 @@ type User = {
 	uid: string;
 	username: string;
 	surgeon?: string;
-	userType: "Administrador" | "Cirujano" | "Enfermero" | "";
+	userType: "Asistente" | "Cirujano" | "Enfermero" | "";
 	superadmin: boolean;
 	isVerified: boolean
 };

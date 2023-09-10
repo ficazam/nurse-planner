@@ -194,8 +194,8 @@ const NewPatient = () => {
 										disabled: isLoading,
 									}}
 									defaultValue=""
-									label="Enfermera: "
-									placeholder="Asigne una enfermera: "
+									label="Enfermero: "
+									placeholder="Asigne un enfermero: "
 									labelClassName="text-sm font-semibold mb-2"
 									options={nurses}
 									error={
