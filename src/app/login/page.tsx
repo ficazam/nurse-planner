@@ -4,7 +4,7 @@ import Card from "../components/Card";
 import { FieldValues, useForm, FormProvider } from "react-hook-form";
 import Input from "../components/Input";
 import { emailRegex, validatePassword } from "../core/validators";
-import { redirect, useRouter } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Button, { CancelButton } from "../components/Button";
 import getUser from "@/app/api/getUser";
@@ -29,28 +29,39 @@ const Login = () => {
 	const setUser = useUserStore((state) => state.setUser);
 	const router = useRouter();
 
+	const params = useSearchParams()
+	console.log(params?.get('q'))
+
 	useEffect(() => {
 		if (user) redirect("/dashboard");
-	}, [user]);
+		if (params?.get('q') === 'verify') {
+			setAuthError('Por favor espere mientras se verifica su usuario nuevo.')
+		}
+	}, [user, params]);
 
 	const loginHandler = async (data: FieldValues) => {
 		if (loginForm.formState.isValid) {
 			setIsLoading(true);
 
-			const login = await signIn("credentials", {
-				email: data.email,
-				password: data.password,
-				redirect: false
-			});
+			const userData = await getUser(data.email)
 
-			console.log(login)
-
-			if (login?.ok) {
-				const userData = await getUser(data.email);
-				setUser(userData as User);
+			if(userData && userData.isVerified) {
+				const login = await signIn("credentials", {
+					email: data.email,
+					password: data.password,
+					redirect: false
+				});
+	
+				if (login?.ok) {
+					setUser(userData as User);
+				}else {
+					setAuthError(login?.error);
+				}
 			} else {
-				setAuthError(login?.error);
+				setAuthError('Usuario no verificado.')
 			}
+
+			 
 
 			setIsLoading(false);
 		}

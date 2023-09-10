@@ -4,6 +4,7 @@ type User = {
 	surgeon?: string;
 	userType: "Administrador" | "Cirujano" | "Enfermero" | "";
 	superadmin: boolean;
+	isVerified: boolean
 };
 
 type Patient = {

@@ -43,6 +43,7 @@ const Register = () => {
 			userType: data.userType,
 			surgeon: data.surgeon || "",
 			superadmin: false,
+			isVerified: false
 		};
 
 		if (registerForm.formState.isValid) {
@@ -50,9 +51,7 @@ const Register = () => {
 			const signup = await signUpUser(data.email, data.password);
 			await addNewUser(userData);
 
-			const user = await getUser(data.email);
-
-			setUser(user as User);
+			router.push('/login?q=verify')
 			setIsLoading(false)
 		}
 	};
