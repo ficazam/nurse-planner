@@ -30,7 +30,6 @@ const Login = () => {
 	const router = useRouter();
 
 	const params = useSearchParams()
-	console.log(params?.get('q'))
 
 	useEffect(() => {
 		if (user) redirect("/dashboard");
